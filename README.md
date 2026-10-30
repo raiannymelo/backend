@@ -1,39 +1,130 @@
 # API de Gestão de Loja
 
-## Objetivo
+## Nome e objetivo da API
 
-Esta API fornece operações para consultar e administrar os principais dados de uma loja: usuários, clientes, fornecedores, funcionários, produtos, entradas de estoque, pedidos e saídas de estoque. Ela foi construída com Node.js e Express, utilizando MySQL como banco de dados.
+A API de Gestão de Loja é um backend em Node.js para controlar as operações essenciais de uma loja, incluindo cadastro de usuários, clientes, fornecedores, funcionários, produtos, entradas de estoque, pedidos e saídas de estoque.
 
-## Tecnologias
+O objetivo principal é centralizar o processamento e a persistência dos dados da operação comercial em uma interface REST, permitindo que aplicações web, mobile ou integrações externas realizem consultas, cadastros, atualizações e remoções de forma padronizada.
+
+## Problema que a API resolve
+
+Antes de um backend centralizado, o controle de uma loja geralmente fica espalhado em planilhas, formulários isolados e processos manuais. Essa API resolve esse problema ao oferecer um ponto único para:
+
+- cadastrar e consultar usuários do sistema;
+- gerir clientes e fornecedores;
+- registrar fornecedores, funcionários e produtos;
+- controlar entradas e saídas de estoque;
+- registrar pedidos e movimentações relacionadas à operação comercial;
+- manter os dados em um banco relacional consistente e acessível por endpoints HTTP.
+
+## Tecnologias utilizadas no backend
 
 - Node.js
 - Express
+- JavaScript / CommonJS
+- Prisma ORM
 - MySQL
-- `bcryptjs` para hash e verificação de senhas
-- `jsonwebtoken` para emissão de tokens JWT
-- `dotenv` para carregar configurações de ambiente
+- JWT (JSON Web Token)
+- bcryptjs
+- dotenv
+- CORS
+- Morgan
+- Body Parser
 
-## Como iniciar
+## ORM utilizado e sua finalidade
 
-1. Instale as dependências do projeto com `npm install`.
-2. Configure as variáveis de ambiente em um arquivo `.env` na raiz do projeto:
+O ORM utilizado é o Prisma.
 
-   ```env
-   PORT=5000
-   DB_HOST=localhost
-   DB_PORT=3306
-   DB_USER=seu_usuario
-   DB_PASSWORD=sua_senha
-   DB_NAME=raianny_loja
-   JWT_SECRET=coloque_um_segredo_longo_e_aleatorio
-   ```
+Sua finalidade é abstrair a comunicação com o banco de dados, modelar as tabelas do sistema em objetos JavaScript/TypeScript, facilitar consultas e escrita de registros, além de manter a estrutura do banco em um arquivo de schema (`prisma/schema.prisma`). No projeto, o Prisma é usado para acessar os modelos `usuarios`, `clientes`, `fornecedores`, `funcionarios`, `produtos`, `entradas`, `pedidos` e `saidas`.
 
-3. Inicie o servidor em desenvolvimento com `npm run dev`, ou em execução normal com `npm start`.
-4. Por padrão, o servidor usa a porta `5000`. A página inicial pode ser aberta em `http://localhost:5000/`.
+## Banco de dados utilizado
 
-## Recursos e endpoints
+O banco de dados utilizado é o MySQL.
 
-Todas as rotas abaixo são relativas à origem da API. Os endpoints de recursos oferecem operações de listagem, consulta por ID, criação, atualização parcial e exclusão.
+As configurações de conexão são feitas via variáveis de ambiente e a API também possui suporte ao Prisma para gerenciar o schema do banco. O arquivo `raianny_loja.sql` contém o esquema e dados iniciais do sistema.
+
+## Estrutura do projeto
+
+- `app.js`: configuração do Express, middlewares, rotas e tratamento de erros.
+- `server.js`: inicia o servidor HTTP.
+- `mysql.js`: inicializa a conexão com MySQL e o Prisma Client.
+- `routes/`: arquivos específicos para cada recurso e para autenticação.
+- `prisma/schema.prisma`: definição do modelo do banco com Prisma.
+- `raianny_loja.sql`: script SQL com estrutura e dados iniciais.
+- `index.html`: página inicial do servidor.
+
+## Instalação e execução
+
+1. Clone o projeto e acesse a pasta raiz.
+2. Instale as dependências:
+
+```bash
+npm install
+```
+
+3. Crie um arquivo `.env` na raiz do projeto com as variáveis abaixo.
+4. Gere o cliente Prisma, caso ainda não tenha sido gerado:
+
+```bash
+npx prisma generate
+```
+
+5. Inicie o servidor em modo de desenvolvimento:
+
+```bash
+npm run dev
+```
+
+6. Para executar em produção:
+
+```bash
+npm start
+```
+
+A API será iniciada por padrão na porta `5000`, salvo configuração diferente da variável `PORT`.
+
+## Variáveis de ambiente necessárias
+
+Crie um arquivo `.env` na raiz com esta estrutura, substituindo os valores de exemplo pelos dados reais do ambiente local ou da hospedagem:
+
+```env
+PORT=5000
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=seu_usuario
+DB_PASSWORD=sua_senha
+DB_NAME=raianny_loja
+DATABASE_URL="mysql://seu_usuario:sua_senha@localhost:3306/raianny_loja"
+JWT_SECRET=uma_chave_secreta_muito_segura
+```
+
+Observações:
+
+- Nunca compartilhe valores reais de senha, token ou chaves secretas.
+- `JWT_SECRET` é usado para assinar os tokens gerados no login.
+- `DATABASE_URL` deve refletir a conexão do banco em uso.
+
+## Rotas disponíveis
+
+Todas as rotas abaixo são relativas à origem da API. Em desenvolvimento, a base mais comum é:
+
+```text
+http://localhost:5000
+```
+
+### Rota raiz
+
+| Método | Rota | Finalidade |
+| --- | --- | --- |
+| GET | `/` | Retorna a página inicial do backend em HTML. |
+
+### Autenticação
+
+| Método | Rota | Finalidade |
+| --- | --- | --- |
+| POST | `/usuario/login` | Valida e-mail e senha e retorna um token JWT. |
+
+### Recursos da loja
 
 | Recurso | Base | Chave primária |
 | --- | --- | --- |
@@ -42,57 +133,137 @@ Todas as rotas abaixo são relativas à origem da API. Os endpoints de recursos 
 | Fornecedores | `/fornecedor` | `id_fornecedor` |
 | Funcionários | `/funcionario` | `id_funcionario` |
 | Produtos | `/produto` | `id_produto` |
-| Entradas de estoque | `/entrada` | `id_entrada` |
+| Entradas | `/entrada` | `id_entrada` |
 | Pedidos | `/pedido` | `id_pedido` |
-| Saídas de estoque | `/saida` | `id_saida` |
+| Saídas | `/saida` | `id_saida` |
 
-Para cada recurso, estão disponíveis:
+Para cada recurso, a API oferece as operações CRUD:
 
-| Método | Caminho | Funcionalidade |
+| Método | Caminho | Finalidade |
 | --- | --- | --- |
-| `GET` | `/recurso` | Lista os registros do recurso. |
-| `GET` | `/recurso/:id` | Consulta um registro pela chave primária. |
-| `POST` | `/recurso` | Cria um registro. |
-| `PATCH` | `/recurso/:id` | Atualiza parcialmente um registro. |
-| `DELETE` | `/recurso/:id` | Exclui um registro. |
+| GET | `/recurso` | Listar todos os registros. |
+| GET | `/recurso/:id` | Buscar um registro por ID. |
+| POST | `/recurso` | Criar um novo registro. |
+| PATCH | `/recurso/:id` | Atualizar parcialmente um registro. |
+| DELETE | `/recurso/:id` | Remover um registro. |
 
-### Login
+## Formato dos dados enviados e das respostas retornadas
 
-`POST /usuario/login` autentica um usuário ativo pelo e-mail e senha. Envie um corpo JSON:
+A API aceita e responde em JSON.
+
+### Respostas de sucesso
+
+#### Login
 
 ```json
 {
-  "email": "usuario@exemplo.com",
-  "senha": "sua_senha"
+  "mensagem": "Login realizado com sucesso.",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "usuario": {
+    "id_usu": 1,
+    "nome": "Maria da Silva",
+    "email": "maria@email.com"
+  }
 }
 ```
 
-Em caso de sucesso, a resposta inclui dados básicos do usuário e um token JWT com validade de uma hora. Senhas novas são armazenadas com hash bcrypt. Quando uma senha antiga em texto puro é validada pelo login, a API tenta convertê-la para bcrypt. O token é emitido, mas as outras rotas ainda não exigem autenticação por token.
+#### Listagem de registros
 
-### Exemplos de corpos JSON
+```json
+{
+  "usuario": [
+    {
+      "id_usu": 1,
+      "nome": "Maria da Silva",
+      "email": "maria@email.com",
+      "contato": "63999990000",
+      "genero": "F",
+      "ativo": 1,
+      "criado_em": "2026-10-30T00:00:00.000Z",
+      "atualizado_em": "2026-10-30T00:00:00.000Z"
+    }
+  ]
+}
+```
 
-Criar um cliente (`POST /cliente`):
+#### Criação
+
+```json
+{
+  "mensagem": "Usuário criado(a) com sucesso.",
+  "id_usu": 1
+}
+```
+
+### Respostas de erro
+
+```json
+{
+  "erro": {
+    "mensagem": "E-mail ou senha inválidos."
+  }
+}
+```
+
+Códigos HTTP comuns:
+
+- `200`: operação concluída com sucesso.
+- `201`: registro criado com sucesso.
+- `400`: dados inválidos ou campos obrigatórios ausentes.
+- `401`: autenticação falhou ou usuário inválido.
+- `404`: recurso não encontrado.
+- `500`: erro interno do servidor.
+
+## Exemplos de payloads
+
+### Cadastrar usuário
+
+Endpoint: `POST /usuario`
 
 ```json
 {
   "nome": "Maria da Silva",
-  "email": "maria@exemplo.com",
+  "email": "maria@email.com",
+  "senha": "minhaSenha123",
   "contato": "63999990000",
+  "genero": "F",
   "ativo": 1
 }
 ```
 
-Criar um produto (`POST /produto`):
+### Fazer login
+
+Endpoint: `POST /usuario/login`
+
+```json
+{
+  "email": "maria@email.com",
+  "senha": "minhaSenha123"
+}
+```
+
+### Cadastrar cliente
+
+```json
+{
+  "nome": "João Pereira",
+  "email": "joao@email.com",
+  "contato": "61988887777",
+  "ativo": 1
+}
+```
+
+### Cadastrar produto
 
 ```json
 {
   "nome": "Detergente",
-  "descricao": "Detergente líquido 500 ml",
-  "preco": 3.5
+  "descricao": "Detergente líquido 500ml",
+  "preco": 12.5
 }
 ```
 
-Criar uma entrada de estoque (`POST /entrada`):
+### Cadastrar entrada de estoque
 
 ```json
 {
@@ -100,34 +271,64 @@ Criar uma entrada de estoque (`POST /entrada`):
   "id_fornecedor": 2,
   "quantidade": 20,
   "valor_unitario": 3.5,
-  "data_entrada": "2026-10-28",
-  "observacao": "Reposição"
+  "data_entrada": "2026-10-30",
+  "observacao": "Reposição do estoque"
 }
 ```
 
-## Respostas e erros
+## Cadastro de usuário e teste de login
 
-As respostas são JSON. Os códigos mais comuns incluem:
+1. Crie um usuário via `POST /usuario` com os campos `nome`, `email` e `senha` obrigatórios.
+2. A senha será hasheada com `bcryptjs` antes de ser salva no banco.
+3. Faça uma requisição para `POST /usuario/login` com o mesmo `email` e `senha` do usuário.
+4. Se as credenciais estiverem corretas, a API devolverá um `token` JWT e os dados do usuário.
+5. Copie o `token` e, se a aplicação for futuramente protegida por middleware de autenticação, envie-o no cabeçalho:
 
-- `200`: consulta, atualização ou exclusão concluída.
-- `201`: registro criado.
-- `400`: campos obrigatórios ausentes ou ID inválido.
-- `401`: credenciais de login inválidas ou usuário inativo.
-- `404`: recurso ou registro não encontrado.
-- `500`: erro interno ou falha de configuração/conexão.
+```http
+Authorization: Bearer <token>
+```
 
-## Observações sobre o banco de dados
+## Autenticação e rotas protegidas
 
-- O esquema e os dados iniciais estão no arquivo `raianny_loja.sql`.
-- A API usa nomes de tabelas e campos compatíveis com esse esquema.
-- No SQL fornecido, as tabelas `funcionarios` e `saidas` não definem as respectivas chaves primárias como `AUTO_INCREMENT`; por isso, o cadastro desses recursos exige `id_funcionario` e `id_saida` no corpo da requisição.
-- A tabela de pedidos contém apenas informações do pedido e do cliente; não há tabela de itens de pedido no esquema atual.
+A aplicação atualmente possui um fluxo de autenticação funcional no login:
 
-## Organização do código
+- a rota `/usuario/login` valida as credenciais;
+- se o usuário estiver ativo e a senha for válida, a API emite um JWT;
+- o token tem expiração de 1 hora.
 
-- `server.js`: inicia o servidor HTTP.
-- `app.js`: configura middlewares, página inicial, rotas e tratamento de erros.
-- `mysql.js`: configura o pool de conexões MySQL.
-- `routes/routerUser.js`: rotas de usuários e login.
-- `routes/routerCliente.js`, `routerFornecedor.js`, `routerFuncionario.js`, `routerProduto.js`, `routerEntrada.js`, `routerPedido.js` e `routerSaida.js`: configurações de rota por recurso.
-- `routes/crudRouter.js`: implementação compartilhada das operações CRUD.
+No estado atual do código, as rotas de CRUD não possuem middleware de autorização aplicado em `app.js`, ou seja, as operações de recursos ainda são públicas. Isso significa que o token é gerado e disponibilizado pela API, mas a validação do JWT não está sendo exigida em todas as rotas neste momento.
+
+Se o projeto for evoluído para autenticação estrita, o padrão esperado será:
+
+- enviar o token no header `Authorization`;
+- verificar o JWT antes de permitir acesso aos endpoints de recursos;
+- rejeitar requisições sem token ou com token inválido com `401`.
+
+## Endereço público da API após a hospedagem
+
+Em desenvolvimento, a API normalmente será acessada em:
+
+```text
+http://localhost:5000
+```
+
+Em produção ou hospedagem, o endereço público dependerá da plataforma escolhida. Exemplos comuns:
+
+```text
+https://nome-do-projeto.onrender.com
+https://seu-dominio.com
+https://api.exemplo.com
+```
+
+O valor exato deve ser ajustado conforme a infraestrutura de hospedagem utilizada (Render, Railway, Vercel, VPS, etc.).
+
+## Observações importantes
+
+- O arquivo `raianny_loja.sql` deve ser utilizado para criar a estrutura inicial do banco.
+- O Prisma usa o schema em `prisma/schema.prisma` e a variável `DATABASE_URL` para conectar ao MySQL.
+- Alguns campos de cadastro exigem valores do banco e podem não ter validação rígida no nível da API, então o cliente deve enviar os dados no formato esperado.
+- O projeto ainda tem uma arquitetura de CRUD genérico compartilhada em `routes/crudRouter.js`, o que simplifica a criação e manutenção dos endpoints.
+
+## Resumo
+
+A API de Gestão de Loja oferece um backend completo para gerenciar o fluxo operacional de uma loja utilizando Node.js, Express, Prisma e MySQL. Ela centraliza usuários, clientes, fornecedores, funcionários, produtos, entradas, saídas e pedidos em endpoints REST, com autenticação através de login e JWT, embora a proteção de acesso por token ainda precise ser aplicada de maneira explícita nas rotas sensíveis.
