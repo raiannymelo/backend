@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model usuarios {
+  id_usu         Int       @id @default(autoincrement())
+  nome           String    @db.VarChar(80)
+  email          String    @unique @db.VarChar(100)
+  senha          String    @db.VarChar(255)
+  contato        String?   @db.VarChar(20)
+  genero         String?   @db.Char(1)
+  ativo          Int?      @default(1) @db.TinyInt
+  criado_em      DateTime? @default(now()) @db.Timestamp(0)
+  atualizado_em   DateTime? @updatedAt @db.Timestamp(0)
+}
+
+model clientes {
+  id_cliente     Int       @id @default(autoincrement())
+  nome           String    @db.VarChar(100)
+  email          String    @unique @db.VarChar(100)
+  contato        String?   @db.VarChar(20)
+  ativo          Int?      @default(1) @db.TinyInt
+  criado_em      DateTime? @default(now()) @db.Timestamp(0)
+  atualizado_em  DateTime? @updatedAt @db.Timestamp(0)
+}
+
+model fornecedores {
+  id_fornecedor  Int       @id @default(autoincrement())
+  nome           String    @db.VarChar(100)
+  empresa        String?   @db.VarChar(100)
+  email          String?   @db.VarChar(100)
+  telefone       String?   @db.VarChar(20)
+  cidade         String?   @db.VarChar(50)
+  estado         String?   @db.Char(2)
+  ativo          Int?      @default(1) @db.TinyInt
+  criado_em      DateTime? @default(now()) @db.Timestamp(0)
+  atualizado_em  DateTime? @updatedAt @db.Timestamp(0)
+}
+
+model funcionarios {
+  id_funcionario Int       @id @default(autoincrement())
+  nome           String    @db.VarChar(100)
+  cargo          String    @db.VarChar(50)
+  salario        Decimal   @db.Decimal(10, 2)
+  telefone       String?   @db.VarChar(20)
+  email          String?   @db.VarChar(100)
+  data_admissao  DateTime? @db.Date
+  ativo          Int?      @default(1) @db.TinyInt
+  criado_em      DateTime  @default(now()) @db.Timestamp(0)
+  atualizado_em  DateTime  @updatedAt @db.Timestamp(0)
+}
+
+model produtos {
+  id_produto     Int       @id @default(autoincrement())
+  nome           String?   @db.VarChar(100)
+  descricao      String    @db.VarChar(200)
+  preco          Decimal   @db.Decimal(10, 2)
+  criado_em      DateTime? @default(now()) @db.Timestamp(0)
+  atualizado_em  DateTime? @updatedAt @db.Timestamp(0)
+}
+
+model entradas {
+  id_entrada     Int       @id @default(autoincrement())
+  id_produto     Int
+  id_fornecedor  Int
+  quantidade     Int
+  valor_unitario Decimal   @db.Decimal(10, 2)
+  data_entrada   DateTime? @db.Date
+  observacao     String?   @db.VarChar(200)
+  criado_em      DateTime? @default(now()) @db.Timestamp(0)
+  atualizado_em  DateTime? @updatedAt @db.Timestamp(0)
+}
+
+model pedidos {
+  id_pedido      Int       @id @default(autoincrement())
+  status         Int?      @default(1) @db.TinyInt
+  data_pedido    DateTime? @db.Date
+  id_cliente     Int?
+  criado_em      DateTime? @default(now()) @db.Timestamp(0)
+  atualizado_em  DateTime? @updatedAt @db.Timestamp(0)
+}
+
+model saidas {
+  id_saida       Int       @id @default(autoincrement())
+  id_produto     Int
+  id_funcionario Int
+  quantidade     Int
+  valor_unitario Decimal   @db.Decimal(10, 2)
+  data_saida     DateTime? @db.Date
+  destino        String?   @db.VarChar(100)
+  criado_em      DateTime  @default(now()) @db.Timestamp(0)
+  atualizado_em  DateTime  @updatedAt @db.Timestamp(0)
+}

@@ -89,6 +89,7 @@ Crie um arquivo `.env` na raiz com esta estrutura, substituindo os valores de ex
 
 ```env
 PORT=5000
+CORS_ORIGIN=http://localhost:3000,http://localhost:5173
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=seu_usuario
@@ -103,6 +104,7 @@ Observações:
 - Nunca compartilhe valores reais de senha, token ou chaves secretas.
 - `JWT_SECRET` é usado para assinar os tokens gerados no login.
 - `DATABASE_URL` deve refletir a conexão do banco em uso.
+- `CORS_ORIGIN` deve conter as origens autorizadas do frontend, separadas por vírgula (protocolo, domínio e porta; sem caminho). Em produção, configure o domínio real do frontend nessa variável.
 
 ## Rotas disponíveis
 
